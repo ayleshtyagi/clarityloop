@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClarityLoop — dump it, get clarity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14151A;
+    --bg-soft:#1C1E25;
+    --text:#E8E6DF;
+    --text-dim:#8A8D98;
+    --paper:#F7F4ED;
+    --paper-text:#1A1A1A;
+    --paper-text-dim:#6B6B66;
+    --accent:#FF4429;
+    --line-dark:#2A2C34;
+    --line-paper:#DEDACE;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'JetBrains Mono', monospace;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:48px 20px 80px;
+  }
+  .wrap{width:100%;max-width:640px;}
+  header{margin-bottom:36px;}
+  .word{
+    font-size:13px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    font-weight:500;
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'JetBrains Mono', monospace;
+    font-size:26px;
+    line-height:1.35;
+    font-weight:700;
+    margin:0;
+    color:var(--text);
+  }
+  h1 span{color:var(--accent);}
+  .sub{
+    color:var(--text-dim);
+    font-size:14px;
+    margin:14px 0 0;
+    line-height:1.5;
+  }
+
+  .input-panel{
+    background:var(--bg-soft);
+    border:1px solid var(--line-dark);
+    border-radius:4px;
+    padding:18px;
+    margin-top:32px;
+  }
+  .input-label{
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:10px;
+  }
+  textarea{
+    width:100%;
+    min-height:160px;
+    background:transparent;
+    border:none;
+    outline:none;
+    resize:vertical;
+    color:var(--text);
+    font-family:'JetBrains Mono', monospace;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  textarea::placeholder{color:#52545E;}
+  textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .panel-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:14px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .count{font-size:12px;color:var(--text-dim);}
+
+  button.cta{
+    background:var(--accent);
+    color:#16110F;
+    border:none;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:14px;
+    padding:11px 22px;
+    border-radius:3px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
+  button.cta:hover{filter:brightness(1.08);}
+  button.cta:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+  button.cta:disabled{opacity:0.55;cursor:default;}
+
+  .error{
+    margin-top:16px;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    background:rgba(255,68,41,0.08);
+    padding:12px 14px;
+    border-radius:4px;
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  /* output card — the "paper" that lands on the dark desk */
+  .output{
+    margin-top:28px;
+    background:var(--paper);
+    color:var(--paper-text);
+    border-radius:5px;
+    padding:28px 26px 8px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.35);
+    font-family:'Inter', sans-serif;
+    animation:land .45s ease-out;
+  }
+  @keyframes land{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .output{animation:none;}
+  }
+  .section{
+    margin-bottom:22px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--line-paper);
+  }
+  .section:last-of-type{border-bottom:none;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--paper-text-dim);
+    margin-bottom:8px;
+  }
+  .eyebrow.flag{color:var(--accent);}
+  .section-body{
+    font-size:15.5px;
+    line-height:1.65;
+    white-space:pre-wrap;
+  }
+  .section.flag{
+    background:rgba(255,68,41,0.06);
+    margin:-10px -16px 22px;
+    padding:14px 16px 18px;
+    border-radius:4px;
+    border-bottom:none;
+  }
+
+  /* history */
+  .history{margin-top:44px;}
+  .history-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:14px;
+  }
+  .history-title{
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  .clear-link{
+    background:none;border:none;color:var(--text-dim);
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    text-decoration:underline;cursor:pointer;padding:0;
+  }
+  .clear-link:hover{color:var(--text);}
+  .empty{
+    color:var(--text-dim);
+    font-size:13px;
+    border:1px dashed var(--line-dark);
+    padding:16px;
+    border-radius:4px;
+  }
+  .entry{
+    border:1px solid var(--line-dark);
+    border-radius:4px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    cursor:pointer;
+  }
+  .entry:hover{border-color:#3A3D49;}
+  .entry-top{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .entry-snip{
+    margin-top:8px;
+    font-size:13.5px;
+    color:var(--text);
+    line-height:1.5;
+  }
+  .entry-full{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--line-dark);
+    display:none;
+  }
+  .entry.open .entry-full{display:block;}
+  .entry-full .output{box-shadow:none;margin-top:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="word">ClarityLoop</p>
+    <h1>Dump everything in your head.<br>Get back what <span>actually</span> matters.</h1>
+    <p class="sub">No login. Nothing leaves your browser except this text, sent once to get your answer.</p>
+  </header>
+
+  <div class="input-panel">
+    <div class="input-label">Everything in your head right now:</div>
+    <textarea id="dump" placeholder="tasks, half-decisions, worries, ideas — don't organize it, just get it out..."></textarea>
+    <div class="panel-foot">
+      <span class="count" id="count">0 characters</span>
+      <button class="cta" id="submitBtn">Get Clarity →</button>
+    </div>
+  </div>
+
+  <div id="errorBox"></div>
+  <div id="resultBox"></div>
+
+  <div class="history">
+    <div class="history-head">
+      <span class="history-title">Past entries</span>
+      <button class="clear-link" id="clearBtn">clear history</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'clarityloop_entries';
+const dumpEl = document.getElementById('dump');
+const countEl = document.getElementById('count');
+const submitBtn = document.getElementById('submitBtn');
+const errorBox = document.getElementById('errorBox');
+const resultBox = document.getElementById('resultBox');
+const historyList = document.getElementById('historyList');
+const clearBtn = document.getElementById('clearBtn');
+
+const loadingMsgs = ['reading...', 'cutting the noise...', 'almost there...'];
+
+function getEntries(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e){ return []; }
+}
+function saveEntries(entries){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.slice(0,20)));
+}
+function daysAgo(iso){
+  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if(d <= 0) return 'today';
+  if(d === 1) return '1 day ago';
+  return d + ' days ago';
+}
+function fmtDate(iso){
+  return new Date(iso).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+}
+
+// Parses the model's structured plain-text output into sections
+function parseOutput(text){
+  const labels = ['STILL UNRESOLVED','TOP 3 PRIORITIES','THE DECISION YOU\'RE AVOIDING','WHAT TO DROP','ONE SHARP QUESTION'];
+  const found = [];
+  labels.forEach(label=>{
+    const re = new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\s*\\n([\\s\\S]*?)(?=\\n(?:' + labels.map(l=>l.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')|$)','i');
+    const m = text.match(re);
+    if(m && m[1].trim()) found.push({label, body:m[1].trim()});
+  });
+  return found.length ? found : [{label:'CLARITY', body:text.trim()}];
+}
+
+function renderOutput(text, container){
+  const sections = parseOutput(text);
+  const card = document.createElement('div');
+  card.className = 'output';
+  sections.forEach(s=>{
+    const isFlag = s.label.includes('UNRESOLVED') || s.label.includes('AVOIDING');
+    const sec = document.createElement('div');
+    sec.className = 'section' + (isFlag ? ' flag' : '');
+    sec.innerHTML = `<div class="eyebrow${isFlag ? ' flag' : ''}">${s.label}</div><div class="section-body"></div>`;
+    sec.querySelector('.section-body').textContent = s.body;
+    card.appendChild(sec);
+  });
+  container.innerHTML = '';
+  container.appendChild(card);
+}
+
+function renderHistory(){
+  const entries = getEntries();
+  if(!entries.length){
+    historyList.innerHTML = `<div class="empty">No entries yet — your first one starts the loop.</div>`;
+    return;
+  }
+  historyList.innerHTML = '';
+  entries.forEach((e, i)=>{
+    const div = document.createElement('div');
+    div.className = 'entry';
+    div.innerHTML = `
+      <div class="entry-top"><span>${fmtDate(e.date)} · ${daysAgo(e.date)}</span><span>tap to expand</span></div>
+      <div class="entry-snip">${e.dump.slice(0,90)}${e.dump.length>90?'…':''}</div>
+      <div class="entry-full"></div>
+    `;
+    div.addEventListener('click', ()=>{
+      const wasOpen = div.classList.contains('open');
+      document.querySelectorAll('.entry.open').forEach(o=>o.classList.remove('open'));
+      if(!wasOpen){
+        div.classList.add('open');
+        const full = div.querySelector('.entry-full');
+        if(!full.dataset.rendered){
+          renderOutput(e.output, full);
+          full.dataset.rendered = '1';
+        }
+      }
+    });
+    historyList.appendChild(div);
+  });
+}
+
+dumpEl.addEventListener('input', ()=>{
+  countEl.textContent = dumpEl.value.length + ' characters';
+});
+
+submitBtn.addEventListener('click', async ()=>{
+  const dump = dumpEl.value.trim();
+  errorBox.innerHTML = '';
+  if(!dump){
+    errorBox.innerHTML = `<div class="error">Nothing to work with yet — write what's actually on your mind first.</div>`;
+    return;
+  }
+
+  const history = getEntries().slice(0,2).map(e => ({date:e.date, dump:e.dump.slice(0,300)}));
+
+  submitBtn.disabled = true;
+  let msgIdx = 0;
+  submitBtn.textContent = loadingMsgs[0];
+  const msgTimer = setInterval(()=>{
+    msgIdx = (msgIdx+1) % loadingMsgs.length;
+    submitBtn.textContent = loadingMsgs[msgIdx];
+  }, 1100);
+
+  try{
+    const res = await fetch('/api/clarity', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ dump, history })
+    });
+    const data = await res.json();
+    if(!res.ok){
+      throw new Error(data.error || 'Something broke on the server.');
+    }
+    renderOutput(data.output, resultBox);
+
+    const entries = getEntries();
+    entries.unshift({ date: new Date().toISOString(), dump, output: data.output });
+    saveEntries(entries);
+    renderHistory();
+    dumpEl.value = '';
+    countEl.textContent = '0 characters';
+  }catch(err){
+    errorBox.innerHTML = `<div class="error">Couldn't reach the model — ${err.message}. Try again.</div>`;
+  }finally{
+    clearInterval(msgTimer);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Get Clarity →';
+  }
+});
+
+clearBtn.addEventListener('click', ()=>{
+  if(confirm('Clear all saved entries? This cannot be undone.')){
+    localStorage.removeItem(STORAGE_KEY);
+    renderHistory();
+  }
+});
+
+renderHistory();
+</script>
+</body>
+</html>
